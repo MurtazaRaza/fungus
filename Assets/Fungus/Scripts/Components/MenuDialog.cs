@@ -35,25 +35,6 @@ namespace Fungus
                 // Don't auto disable buttons in the editor
                 Clear();
             }
-
-            CheckEventSystem();
-        }
-
-        // There must be an Event System in the scene for Say and Menu input to work.
-        // This method will automatically instantiate one if none exists.
-        protected virtual void CheckEventSystem()
-        {
-            EventSystem eventSystem = GameObject.FindObjectOfType<EventSystem>();
-            if (eventSystem == null)
-            {
-                // Auto spawn an Event System from the prefab
-                GameObject prefab = Resources.Load<GameObject>("Prefabs/EventSystem");
-                if (prefab != null)
-                {
-                    GameObject go = Instantiate(prefab) as GameObject;
-                    go.name = "EventSystem";
-                }
-            }
         }
 
         protected virtual void OnEnable()
@@ -135,7 +116,36 @@ namespace Fungus
                     GameObject prefab = Resources.Load<GameObject>("Prefabs/MenuDialog");
                     if (prefab != null)
                     {
-                        GameObject go = Instantiate(prefab) as GameObject;
+
+                        GameObject cam = GameObject.FindWithTag("Player");
+                        GameObject go;
+                       
+
+
+                        //For added accuracy generate menu dialog box on specific coordinates
+                        //Good for when you know where the dialog box should be
+                        if (Application.loadedLevelName == "Airplane")
+                        {
+                            go = Instantiate(prefab, new Vector3(-4.32005f, 1.7f, 2.104f),
+                           Quaternion.identity, cam.transform) as GameObject;
+                        }
+                        else if (Application.loadedLevelName == "UniversityScene")
+                        {
+                            go = Instantiate(prefab, new Vector3(4.17f, 3.46f, -8.49f),
+                             Quaternion.Euler(0, 90, 0)) as GameObject;
+                        }
+                        else if (Application.loadedLevelName == "LobbyScene")
+                        {
+                            go = Instantiate(prefab, new Vector3(5.86f, 4.83f, -2.91f),
+                             Quaternion.Euler(8.802f, -127.781f, 0)) as GameObject;
+                        }
+                        else
+                        {
+                            //Initialize menu dialog box with respect to where the player is standing
+                            go = Instantiate(prefab, new Vector3(cam.transform.position.x - 4.32005f, cam.transform.position.y - 1.5f, cam.transform.position.z + 4f),
+                            Quaternion.identity, cam.transform) as GameObject;
+                        }
+                      
                         go.SetActive(false);
                         go.name = "MenuDialog";
                         ActiveMenuDialog = go.GetComponent<MenuDialog>();

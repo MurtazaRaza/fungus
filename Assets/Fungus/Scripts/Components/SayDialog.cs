@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace Fungus
 {
@@ -37,9 +36,6 @@ namespace Fungus
         [Tooltip("Adjust width of story text when Character Image is displayed (to avoid overlapping)")]
         [SerializeField] protected bool fitTextWithImage = true;
 
-        [Tooltip("Close any other open Say Dialogs when this one is active")]
-        [SerializeField] protected bool closeOtherDialogs;
-
         protected float startStoryTextWidth; 
         protected float startStoryTextInset;
 
@@ -58,23 +54,7 @@ namespace Fungus
 
         protected StringSubstituter stringSubstituter = new StringSubstituter();
 
-		// Cache active Say Dialogs to avoid expensive scene search
-		protected static List<SayDialog> activeSayDialogs = new List<SayDialog>();
-
-		protected void Awake()
-		{
-			if (!activeSayDialogs.Contains(this))
-			{
-				activeSayDialogs.Add(this);
-			}
-		}
-
-		protected void OnDestroy()
-		{
-			activeSayDialogs.Remove(this);
-		}
-			
-		protected Writer GetWriter()
+        protected Writer GetWriter()
         {
             if (writer != null)
             {
@@ -147,15 +127,9 @@ namespace Fungus
                 // Character image is hidden by default.
                 SetCharacterImage(null);
             }
-        }
 
-        protected void OnEnable()
-        {
-            // We need to update the cached list every time the Say Dialog is enabled
-            // due to an initialization order issue after loading scenes.
             stringSubstituter.CacheSubstitutionHandlers();
         }
-
 
         protected virtual void LateUpdate()
         {
@@ -226,14 +200,8 @@ namespace Fungus
         {
             if (ActiveSayDialog == null)
             {
-				SayDialog sd = null;
-
-				// Use first active Say Dialog in the scene (if any)
-				if (activeSayDialogs.Count > 0)
-				{
-					sd = activeSayDialogs[0];
-				}
-
+                // Use first Say Dialog found in the scene (if any)
+                SayDialog sd = GameObject.FindObjectOfType<SayDialog>();
                 if (sd != null)
                 {
                     ActiveSayDialog = sd;
@@ -245,9 +213,35 @@ namespace Fungus
                     GameObject prefab = Resources.Load<GameObject>("Prefabs/SayDialog");
                     if (prefab != null)
                     {
-                        GameObject go = Instantiate(prefab) as GameObject;
-                        go.SetActive(false);
-                        go.name = "SayDialog";
+						
+						GameObject cam = GameObject.FindWithTag ("Player");
+                        GameObject go;
+
+                        //For added accuracy generate say dialog box on specific coordinates
+                        //Good for when you know where the dialog box should be
+
+                        if (Application.loadedLevelName == "Airplane")
+                        {
+                            go = Instantiate(prefab, new Vector3(-4.32005f, 1.7f, 2.104f),
+                           Quaternion.identity, cam.transform) as GameObject;
+                        }
+                        else if (Application.loadedLevelName == "UniversityScene")
+                        {
+                            go = Instantiate(prefab, new Vector3(3.97f, 3.384f, -8.5f),
+                             Quaternion.Euler(0, 90, 0)) as GameObject;
+                        }
+                        else if (Application.loadedLevelName == "LobbyScene")
+                        {
+                            go = Instantiate(prefab, new Vector3(5.86f, 4.995f, -1.907f),
+                             Quaternion.Euler(8.802f, -127.781f, 0)) as GameObject;
+                        }
+                        else
+                        {
+                            //Initialize say dialog box with respect to where the player is standing
+                            go = Instantiate(prefab, new Vector3(cam.transform.position.x - 4.32005f, cam.transform.position.y - 1.5f, cam.transform.position.z + 4f),
+                            Quaternion.identity, cam.transform) as GameObject;
+                        }
+                        
                         ActiveSayDialog = go.GetComponent<SayDialog>();
                     }
                 }
@@ -461,17 +455,6 @@ namespace Fungus
                 }
             }
 
-            if (closeOtherDialogs)
-            {
-                for (int i = 0; i < activeSayDialogs.Count; i++)
-                {
-                    var sd = activeSayDialogs[i];
-                    if (sd.gameObject != gameObject)
-                    {
-                        sd.SetActive(false);
-                    }
-                }
-            }
             gameObject.SetActive(true);
 
             this.fadeWhenDone = fadeWhenDone;
@@ -495,7 +478,7 @@ namespace Fungus
         /// <summary>
         /// Tell the Say Dialog to fade out once writing and player input have finished.
         /// </summary>
-        public virtual bool FadeWhenDone { get {return fadeWhenDone; } set { fadeWhenDone = value; } }
+        public virtual bool FadeWhenDone { set { fadeWhenDone = value; } }
 
         /// <summary>
         /// Stop the Say Dialog while its writing text.
