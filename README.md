@@ -1,3 +1,18 @@
+VREdit
+=====
+
+I changed the following to make Fungus work with my VR application. Please find all the files and scripts that I had to change to get my application to work well.
+
+MenuDialog, SayDialog prefabs need to be made world space and "InteractiveObject" script needs to be added on each button in case of menuDialog and directly on SayDialog in case of it. Also, an Event trigger will be needed to be added to both, respectively. 
+
+Google VR SDK needs to be added to the project. Although you will find GVR files in the plugins folder, not all GVR SDK files are included. You will also find Speech to text jar file in the plugins folder, SpeechEngine class uses these files, so be sure to include it.
+
+Be sure to add "SpeechEngine" on an empty game object in your scene. Speech Engine only works for Android though, as it uses built in Android libraries, for any other Speech recognition solutions, you will need to change this SpeechEngine class.
+
+
+
+
+
 Fungus
 ======
 
