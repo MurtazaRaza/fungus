@@ -81,6 +81,9 @@ namespace Fungus.EditorUtils
         protected SerializedProperty waitForClickProp;
         protected SerializedProperty stopVoiceoverProp;
         protected SerializedProperty setSayDialogProp;
+        protected SerializedProperty pitchProp;
+        protected SerializedProperty rateProp;
+
 
         protected virtual void OnEnable()
         {
@@ -99,6 +102,8 @@ namespace Fungus.EditorUtils
             waitForClickProp = serializedObject.FindProperty("waitForClick");
             stopVoiceoverProp = serializedObject.FindProperty("stopVoiceover");
             setSayDialogProp = serializedObject.FindProperty("setSayDialog");
+            pitchProp = serializedObject.FindProperty("pitch");
+            rateProp = serializedObject.FindProperty("speechSpeed");
 
             if (blackTex == null)
             {
@@ -154,6 +159,8 @@ namespace Fungus.EditorUtils
             EditorGUILayout.PropertyField(storyTextProp);
 
             EditorGUILayout.PropertyField(descriptionProp);
+            EditorGUILayout.PropertyField(pitchProp);
+            EditorGUILayout.PropertyField(rateProp);
 
             EditorGUILayout.BeginHorizontal();
 
